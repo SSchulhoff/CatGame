@@ -9,25 +9,80 @@ public class CatGame {
 
     private boolean[] marked;
 
+    EdgeWeightedGraph G;
+
     public CatGame(int n){
         this.n = n;
-        ghostNode = n * n + 1;
-        EdgeWeightedGraph G = new EdgeWeightedGraph(ghostNode);
+        ghostNode = n * n;
+        G = new EdgeWeightedGraph(ghostNode);
         marked = new boolean[n * n];
         for (int i = marked.length - 1; i > 0; i --){
             marked[i] = false;
         }
 
-        //need to fix it adds edges between vertices multiple times
-        for (int row = 0; row < n - 1; row ++){
-            for (int col = 0; col < n - 1; col ++){
+        //connects all the interior vertices
+        for (int row = 1; row < n - 1; row ++){
+            for (int col = 1; col < n - 1; col ++){
                 int v = index(row, col);
                 G.addEdge(new CatEdge(v, v + 1));
-                if (row % 2 == 0){
+                G.addEdge(new CatEdge(v, v + n));
+                if (row % 2 == 0)
+                    G.addEdge(new CatEdge(v, v + n - 1));
+                else
+                    G.addEdge(new CatEdge(v, v + n + 1));
+            }
+        }
+
+        //connects all exterior vertices
+        for (int row = 0; row < n; row ++){
+            //top row
+            if (row == 0){
+                for (int col = 0; col < n; col ++){
+                    int v = index(row, col);
+                    if (col != n - 1)
+                        G.addEdge(new CatEdge(v, v + 1));
+                    connectGhost(v);
                     G.addEdge(new CatEdge(v, v + n));
+                    if (col != 0)
+                        G.addEdge(new CatEdge(v, v + n - 1));
+                }
+            }
+            //bottom row
+            else if (row == n - 1){
+                for (int col = 0; col < n; col ++){
+                    int v = index(row, col);
+                    connectGhost(v);
+                    if (col != n - 1)
+                        G.addEdge(new CatEdge(v, v + 1));
+                }
+            }
+            //other rows
+            else{
+                if (row % 2 == 0){
+                    //left vertex
+                    int v = index(row, 0);
+                    G.addEdge(new CatEdge(v, v + 1));
+                    G.addEdge(new CatEdge(v, v + n));
+                    connectGhost(v);
+
+                    //right vertex
+                    v = index(row, n - 1);
+                    G.addEdge(new CatEdge(v, v + n));
+                    G.addEdge(new CatEdge(v, v + n - 1));
+                    connectGhost(v);
                 }
                 else{
-                    G.addEdge(new CatEdge(v, v + n - 1));
+                    //left vertex
+                    int v = index(row, 0);
+                    G.addEdge(new CatEdge(v, v + 1));
+                    G.addEdge(new CatEdge(v, v + n));
+                    G.addEdge(new CatEdge(v, v + n + 1));
+                    connectGhost(v);
+
+                    //right vertex
+                    v = index(row, n - 1);
+                    G.addEdge(new CatEdge(v, v + n));
+                    connectGhost(v);
                 }
             }
         }
@@ -44,6 +99,10 @@ public class CatGame {
             markTile(row, col);
             num --;
         }
+    }
+
+    private void connectGhost(int v){
+        G.addEdge(new CatEdge(v, n * n));
     }
     
     public void markTile(int row, int col){
