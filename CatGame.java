@@ -2,7 +2,6 @@ import edu.princeton.cs.algs4.DijkstraUndirectedSP;
 import edu.princeton.cs.algs4.EdgeWeightedGraph;
 import edu.princeton.cs.algs4.Edge;
 import java.util.Random;
-import edu.princeton.cs.algs4.Stack;
 
 public class CatGame {
     private int n;
@@ -17,7 +16,7 @@ public class CatGame {
         this.n = n;
         ghostNode = n * n;
         catPos = ghostNode / 2;
-        G = new EdgeWeightedGraph(ghostNode);
+        G = new EdgeWeightedGraph(n * n + 1);
         marked = new boolean[n * n];
 
         for (int i = marked.length - 1; i > 0; i --){
@@ -93,12 +92,13 @@ public class CatGame {
 
         Random rand = new Random();
         int num = rand.nextInt(n / 2);
+        num = 20;
         while(num > 0){
-            int row = rand.nextInt(n * n);
-            int col = rand.nextInt(n * n);
-            while (marked(row, col)){
-                row = rand.nextInt(n * n);
-                col = rand.nextInt(n * n);
+            int row = rand.nextInt(n);
+            int col = rand.nextInt(n);
+            while (marked(row, col) || index(row, col) == n * n / 2){
+                row = rand.nextInt(n);
+                col = rand.nextInt(n);
             }
             noMoveMark(row, col);
             num --;
@@ -113,8 +113,11 @@ public class CatGame {
         noMoveMark(row, col);
         //move the cat after this
         DijkstraUndirectedSP SP = new DijkstraUndirectedSP(G, catPos);
-        Stack stack = (Stack) SP.pathTo(catPos);
-        catPos = stack.pop().other(catPos);
+        if (!catIsTrapped()){
+            CatEdge next = (CatEdge) SP.pathTo(n * n).iterator().next();
+            catPos = next.other(catPos);
+            //next.changeWeight();
+        }
     }
 
     private void noMoveMark(int row, int col){
@@ -140,11 +143,16 @@ public class CatGame {
     }
 
     public boolean catHasEscaped(){
-        return true;
+        if (catPos == ghostNode)
+            return true;
+        return false;
     }
 
     public boolean catIsTrapped(){
-        return true;
+        DijkstraUndirectedSP SP = new DijkstraUndirectedSP(G, catPos);
+        if (SP.hasPathTo(ghostNode) == false)
+            return true;
+        return false;
     }
 
     /*
