@@ -1,6 +1,8 @@
 import edu.princeton.cs.algs4.DijkstraUndirectedSP;
 import edu.princeton.cs.algs4.EdgeWeightedGraph;
+import edu.princeton.cs.algs4.Edge;
 import java.util.Random;
+import edu.princeton.cs.algs4.Stack;
 
 public class CatGame {
     private int n;
@@ -14,8 +16,10 @@ public class CatGame {
     public CatGame(int n){
         this.n = n;
         ghostNode = n * n;
+        catPos = ghostNode / 2;
         G = new EdgeWeightedGraph(ghostNode);
         marked = new boolean[n * n];
+
         for (int i = marked.length - 1; i > 0; i --){
             marked[i] = false;
         }
@@ -96,7 +100,7 @@ public class CatGame {
                 row = rand.nextInt(n * n);
                 col = rand.nextInt(n * n);
             }
-            markTile(row, col);
+            noMoveMark(row, col);
             num --;
         }
     }
@@ -106,8 +110,20 @@ public class CatGame {
     }
     
     public void markTile(int row, int col){
-        marked[index(row, col)] = true;
+        noMoveMark(row, col);
         //move the cat after this
+        DijkstraUndirectedSP SP = new DijkstraUndirectedSP(G, catPos);
+        Stack stack = (Stack) SP.pathTo(catPos);
+        catPos = stack.pop().other(catPos);
+    }
+
+    private void noMoveMark(int row, int col){
+        int v = index(row, col);
+        marked[v] = true;
+        for (Edge i: G.adj(v)){
+            CatEdge c = (CatEdge) i;
+            c.changeWeight();
+        }
     }
 
     public boolean marked(int row, int col){
