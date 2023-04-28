@@ -4,6 +4,7 @@ import edu.princeton.cs.algs4.Edge;
 import java.util.Random;
 
 public class CatGame {
+    //Length of board
     private int n;
     private int ghostNode;
     private int catPos;
@@ -12,6 +13,11 @@ public class CatGame {
 
     EdgeWeightedGraph G;
 
+    /*
+     * Initializes the EWG G
+     * Connects all vertices to adjacent vertices
+     * Randomly blocks a random # of vertices
+     */
     public CatGame(int n){
         this.n = n;
         ghostNode = n * n;
@@ -105,10 +111,17 @@ public class CatGame {
         }
     }
 
+    /*
+     * Connects the ghostNode to the vertex at v
+     */
     private void connectGhost(int v){
         G.addEdge(new CatEdge(v, n * n));
     }
     
+    /*
+     * Marks a tile
+     * Moves the cat
+     */
     public void markTile(int row, int col){
         noMoveMark(row, col);
         //move the cat after this
@@ -120,6 +133,10 @@ public class CatGame {
         }
     }
 
+    /*
+     * Marks the tile at row, col 
+     * Updates the weight of the edges from that vertex
+     */
     private void noMoveMark(int row, int col){
         int v = index(row, col);
         marked[v] = true;
@@ -129,25 +146,35 @@ public class CatGame {
         }
     }
 
+    /*
+     * Checks if a vertex at row, col is marked
+     */
     public boolean marked(int row, int col){
         if (marked[index(row, col)] == true)
             return true;
         return false;
     }
 
+    /*
+     * Returns an iterable of row, column of cat position
+     */
     public int[] getCatTile(){
-        int[] tile = new int[2];
-        tile[0] = catPos / n;
-        tile[1] = catPos % n;
-        return tile;
+        int[] tiles = {catPos / n, catPos % n};
+        return tiles;
     }
 
+    /*
+     * Checks if the cat has escaped
+     */
     public boolean catHasEscaped(){
         if (catPos == ghostNode)
             return true;
         return false;
     }
 
+    /*
+     * Checks if the cat has any available moves
+     */
     public boolean catIsTrapped(){
         DijkstraUndirectedSP SP = new DijkstraUndirectedSP(G, catPos);
         if (SP.hasPathTo(ghostNode) == false)
@@ -155,9 +182,7 @@ public class CatGame {
         return false;
     }
 
-    /*
-     * returns index in the array
-     */
+    //Returns the index of a vertex at row, col
     private int index(int row, int col){
         return n * row + col;
     }
