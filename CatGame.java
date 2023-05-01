@@ -85,8 +85,7 @@ public class CatGame {
         }
 
         Random rand = new Random();
-        int num = rand.nextInt(n / 2);
-        num = 20;
+        int num = rand.nextInt(n / 2 + 2);
         while(num > 0){
             int row = rand.nextInt(n);
             int col = rand.nextInt(n);
