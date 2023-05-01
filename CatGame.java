@@ -29,7 +29,6 @@ public class CatGame {
             marked[i] = false;
         }
 
-        //connects all the interior vertices
         for (int row = 1; row < n - 1; row ++){
             for (int col = 1; col < n - 1; col ++){
                 int v = index(row, col);
@@ -42,9 +41,7 @@ public class CatGame {
             }
         }
 
-        //connects all exterior vertices
         for (int row = 0; row < n; row ++){
-            //top row
             if (row == 0){
                 for (int col = 0; col < n; col ++){
                     int v = index(row, col);
@@ -55,40 +52,31 @@ public class CatGame {
                     if (col != 0)
                         G.addEdge(new CatEdge(v, v + n - 1));
                 }
-            }
-            //bottom row
-            else if (row == n - 1){
+            } else if (row == n - 1){
                 for (int col = 0; col < n; col ++){
                     int v = index(row, col);
                     connectGhost(v);
                     if (col != n - 1)
                         G.addEdge(new CatEdge(v, v + 1));
                 }
-            }
-            //other rows
-            else{
+            } else{
                 if (row % 2 == 0){
-                    //left vertex
                     int v = index(row, 0);
                     G.addEdge(new CatEdge(v, v + 1));
                     G.addEdge(new CatEdge(v, v + n));
                     connectGhost(v);
 
-                    //right vertex
                     v = index(row, n - 1);
                     G.addEdge(new CatEdge(v, v + n));
                     G.addEdge(new CatEdge(v, v + n - 1));
                     connectGhost(v);
-                }
-                else{
-                    //left vertex
+                } else{
                     int v = index(row, 0);
                     G.addEdge(new CatEdge(v, v + 1));
                     G.addEdge(new CatEdge(v, v + n));
                     G.addEdge(new CatEdge(v, v + n + 1));
                     connectGhost(v);
 
-                    //right vertex
                     v = index(row, n - 1);
                     G.addEdge(new CatEdge(v, v + n));
                     connectGhost(v);
@@ -118,18 +106,13 @@ public class CatGame {
         G.addEdge(new CatEdge(v, n * n));
     }
     
-    /*
-     * Marks a tile
-     * Moves the cat
-     */
+    //marks a tile and moves the cat
     public void markTile(int row, int col){
         noMoveMark(row, col);
-        //move the cat after this
         DijkstraUndirectedSP SP = new DijkstraUndirectedSP(G, catPos);
         if (!catIsTrapped()){
             CatEdge next = (CatEdge) SP.pathTo(n * n).iterator().next();
             catPos = next.other(catPos);
-            //next.changeWeight();
         }
     }
 
